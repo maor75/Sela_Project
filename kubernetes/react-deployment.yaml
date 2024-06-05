@@ -9,6 +9,21 @@ spec:
   resources:
     requests:
       storage: 1Gi
+  storageClassName: standard
+---
+# mongodb-pv.yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mongo-pv
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: standard
+  hostPath:
+    path: "/data/pv-data/mongodb"  # Replace with your host directory for volume storage
 ---
 # mongodb-deployment.yaml
 apiVersion: apps/v1
@@ -40,11 +55,13 @@ spec:
           value: "maor"
         - name: MONGO_INITDB_DATABASE
           value: "mydb"
+        volumeMounts:
+        - name: mongodb-data  # Updated to match the volume name
+          mountPath: /data/pv-data/mongodb
       volumes:
       - name: mongodb-data
         persistentVolumeClaim:
           claimName: mongodb-pvc
-
 
 
 ---
@@ -102,7 +119,7 @@ spec:
   - name: http
     port: 8082
     targetPort: 80
-    nodePort: 30001
+    nodePort: 30005
     protocol: TCP
 
 ---
@@ -144,26 +161,7 @@ spec:
   - name: http2
     port: 8081
     targetPort: 8000
-    nodePort: 30002
+    nodePort: 30006
     protocol: TCP
 
----
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: monitoring
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: grafana
-  namespace: monitoring
-spec:
-  type: NodePort
-  ports:
-  - name: http3
-    port: 3000
-    targetPort: 3000
-    nodePort: 30004
-  selector:
-    app.kubernetes.io/name: grafana
+
