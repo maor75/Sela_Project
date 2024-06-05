@@ -57,7 +57,7 @@ spec:
           value: "mydb"
         volumeMounts:
         - name: mongodb-data  # Updated to match the volume name
-          mountPath: /data/pv-data/mongodb
+          mountPath: /data
       volumes:
       - name: mongodb-data
         persistentVolumeClaim:
