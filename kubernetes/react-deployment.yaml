@@ -119,7 +119,7 @@ spec:
   - name: http
     port: 8082
     targetPort: 80
-    nodePort: 30005
+    nodePort: 31000
     protocol: TCP
 
 ---
@@ -161,7 +161,7 @@ spec:
   - name: http2
     port: 8081
     targetPort: 8000
-    nodePort: 30006
+    nodePort: 31001
     protocol: TCP
 
 
