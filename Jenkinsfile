@@ -34,7 +34,13 @@ pipeline {
     environment {
         DOCKER_IMAGE = "maoravidan/projectapp"
     }
-
+    
+     stages {
+        stage('Checkout Code') {
+            steps {
+                checkout scm
+            }
+        }
         stage('maven version') {
             steps {
                 container('maven') {
