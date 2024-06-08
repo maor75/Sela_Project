@@ -20,8 +20,8 @@ pipeline {
                   value: "maor"
                 - name: MONGO_INITDB_DATABASE
                   value: "mydb"
-                - name: HOST
-                  value: "localhost"
+                ports:
+                - containerPort: 27017
               - name: ez-docker-helm-build
                 image: ezezeasy/ez-docker-helm-build:1.41
                 imagePullPolicy: Always
@@ -33,15 +33,17 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = "maoravidan/projectapp"
+        MONGO_HOST = "mongodb"
     }
     
-     stages {
+    stages {
         stage('Checkout Code') {
             steps {
                 checkout scm
             }
         }
-        stage('maven version') {
+
+        stage('Maven Version') {
             steps {
                 container('maven') {
                     sh 'mvn -version'
@@ -49,7 +51,7 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Build Docker Images') {
             steps {
                 container('ez-docker-helm-build') {
                     script {
@@ -60,11 +62,23 @@ pipeline {
             }
         }
 
-        stage('Run Tests') {
+        stage('Run FastAPI Tests') {
             steps {
                 container('ez-docker-helm-build') {
                     script {
-                        sh "docker run --rm -v \$(pwd)/fast_api:/app -w /app ${DOCKER_IMAGE}:fastapi${env.BUILD_NUMBER} python test-config.py"
+                        // Run tests inside the FastAPI Docker container
+                        sh "docker run --network host --rm -v \$(pwd)/fast_api:/app -w /app ${DOCKER_IMAGE}:fastapi${env.BUILD_NUMBER} pytest --junitxml=test-results.xml --maxfail=1 --disable-warnings"
+                    }
+                }
+            }
+            post {
+                always {
+                    // Archive test results
+                    junit 'fast_api/test-results.xml'
+                }
+                failure {
+                    script {
+                        currentBuild.result = 'FAILURE'
                     }
                 }
             }
@@ -86,9 +100,11 @@ pipeline {
             }
         }
     }
+
     post {
         always {
             echo 'Pipeline post'
+            cleanWs() // Clean up workspace after the pipeline
         }
         success {
             echo 'Pipeline succeeded!'
