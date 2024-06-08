@@ -4,6 +4,4 @@ pydantic
 pymongo
 pytest
 httpx
-mongomock 
-pymongo
-bson
+mongomock
