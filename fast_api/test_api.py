@@ -39,7 +39,7 @@ def test_db():
 
 # Test GET /customers
 def test_get_customers(test_db):
-    response = client.get("/customers")
+    response = client.get("/costumers")
     assert response.status_code == 200
     assert response.json() == {
         "table": [
