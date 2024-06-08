@@ -5,3 +5,4 @@ pymongo
 pytest
 httpx
 mongomock
+fastapi pymongo bson
