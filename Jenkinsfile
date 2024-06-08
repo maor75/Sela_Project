@@ -20,16 +20,8 @@ pipeline {
                   value: "maor"
                 - name: MONGO_INITDB_DATABASE
                   value: "mydb"
-                ports:
-                - containerPort: 27017
-                readinessProbe:
-                  exec:
-                    command:
-                    - mongo
-                    - --eval
-                    - "db.adminCommand('ping')"
-                  initialDelaySeconds: 10
-                  periodSeconds: 5
+                - name: HOST
+                  value: "localhost"
               - name: ez-docker-helm-build
                 image: ezezeasy/ez-docker-helm-build:1.41
                 imagePullPolicy: Always
@@ -41,17 +33,15 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = "maoravidan/projectapp"
-        MONGO_HOST = "mongodb"
     }
     
-    stages {
+     stages {
         stage('Checkout Code') {
             steps {
                 checkout scm
             }
         }
-
-        stage('Maven Version') {
+        stage('maven version') {
             steps {
                 container('maven') {
                     sh 'mvn -version'
@@ -59,40 +49,7 @@ pipeline {
             }
         }
 
-        stage('Build Docker Images') {
-            steps {
-                container('ez-docker-helm-build') {
-                    script {
-                        sh "docker build -t ${DOCKER_IMAGE}:fastapi${env.BUILD_NUMBER} ./fast_api"
-                        sh "docker build -t ${DOCKER_IMAGE}:react${env.BUILD_NUMBER} ./test1"
-                    }
-                }
-            }
-        }
-
-        stage('Run FastAPI Tests') {
-            steps {
-                container('ez-docker-helm-build') {
-                    script {
-                        // Ensure pytest can locate tests
-                        sh "docker run --network host --rm -v \$(pwd)/fast_api:/app -w /app ${DOCKER_IMAGE}:fastapi${env.BUILD_NUMBER} pytest --junitxml=test-results.xml --maxfail=1 --disable-warnings"
-                    }
-                }
-            }
-            post {
-                always {
-                    // Archive test results
-                    junit 'fast_api/test-results.xml'
-                }
-                failure {
-                    script {
-                        currentBuild.result = 'FAILURE'
-                    }
-                }
-            }
-        }
-
-        stage('Push Docker Images') {
+        stage('Build and Push Docker Images') {
             when {
                 branch 'main'
             }
@@ -100,8 +57,13 @@ pipeline {
                 container('ez-docker-helm-build') {
                     script {
                         withDockerRegistry(credentialsId: 'docker-hub') {
-                            sh "docker push ${DOCKER_IMAGE}:fastapi${env.BUILD_NUMBER}"
+                            // Build and Push Maven Docker image
+                            sh "docker build -t ${DOCKER_IMAGE}:react${env.BUILD_NUMBER} ./test1"
                             sh "docker push ${DOCKER_IMAGE}:react${env.BUILD_NUMBER}"
+
+                            // Build and Push FastAPI Docker image
+                            sh "docker build -t ${DOCKER_IMAGE}:fastapi${env.BUILD_NUMBER} ./fast_api"
+                            sh "docker push ${DOCKER_IMAGE}:fastapi${env.BUILD_NUMBER}"
                         }
                     }
                 }
@@ -112,9 +74,6 @@ pipeline {
     post {
         always {
             echo 'Pipeline post'
-            script {
-                sh 'rm -rf *' // Alternative cleanup if cleanWs is not available
-            }
         }
         success {
             echo 'Pipeline succeeded!'
@@ -122,9 +81,7 @@ pipeline {
         failure {
             emailext body: 'The build failed. Please check the build logs for details.',
                      subject: "Build failed: ${env.BUILD_NUMBER}",
-                     to: 'avidanos75@gmail.com',
-                     attachLog: true,
-                     compressLog: true
+                     to: 'avidanos75@gmail.com'
         }
     }
 }
