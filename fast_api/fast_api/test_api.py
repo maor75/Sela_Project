@@ -2,26 +2,22 @@ import pytest
 from fastapi.testclient import TestClient
 from httpx import AsyncClient
 from pymongo import MongoClient
-from fastapi import FastAPI
-from bson import ObjectId
 import mongomock
 from inputapi import app, MONGO_DB_NAME
 
 # Override the MongoDB client with a mock for testing
-client = mongomock.MongoClient()
-db = client[MONGO_DB_NAME]
-app.dependency_overrides[MongoClient] = lambda: client
+mock_client = mongomock.MongoClient()
+db = mock_client[MONGO_DB_NAME]
+app.dependency_overrides[MongoClient] = lambda: mock_client
 
 # Create a TestClient instance for synchronous testing
 client = TestClient(app)
-
 
 # Use httpx.AsyncClient for asynchronous tests
 @pytest.fixture
 async def async_client():
     async with AsyncClient(app=app, base_url="http://test") as ac:
         yield ac
-
 
 @pytest.fixture
 def test_db():
@@ -41,7 +37,6 @@ def test_db():
 
     return db
 
-
 # Test GET /customers
 def test_get_customers(test_db):
     response = client.get("/customers")
@@ -52,7 +47,6 @@ def test_get_customers(test_db):
             {"name": "Jane Doe", "mail": "jane@example.com", "phone": "0987654321"}
         ]
     }
-
 
 # Test GET /product
 def test_get_products(test_db):
@@ -65,7 +59,6 @@ def test_get_products(test_db):
         ]
     }
 
-
 # Test POST /input
 def test_create_customer(test_db):
     response = client.post("/input", json={
@@ -77,7 +70,6 @@ def test_create_customer(test_db):
     assert response.json() == {"message": "Customer created successfully."}
     customer = db.customers.find_one({"mail": "alice@example.com"})
     assert customer is not None
-
 
 # Test POST /input_product
 def test_create_product(test_db):
