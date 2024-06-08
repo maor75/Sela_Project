@@ -22,6 +22,14 @@ pipeline {
                   value: "mydb"
                 ports:
                 - containerPort: 27017
+                readinessProbe:
+                  exec:
+                    command:
+                    - mongo
+                    - --eval
+                    - "db.adminCommand('ping')"
+                  initialDelaySeconds: 10
+                  periodSeconds: 5
               - name: ez-docker-helm-build
                 image: ezezeasy/ez-docker-helm-build:1.41
                 imagePullPolicy: Always
