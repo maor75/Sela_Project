@@ -66,7 +66,7 @@ pipeline {
             steps {
                 container('ez-docker-helm-build') {
                     script {
-                        // Run tests inside the FastAPI Docker container
+                        // Ensure pytest can locate tests
                         sh "docker run --network host --rm -v \$(pwd)/fast_api:/app -w /app ${DOCKER_IMAGE}:fastapi${env.BUILD_NUMBER} pytest --junitxml=test-results.xml --maxfail=1 --disable-warnings"
                     }
                 }
@@ -104,7 +104,9 @@ pipeline {
     post {
         always {
             echo 'Pipeline post'
-            cleanWs() // Clean up workspace after the pipeline
+            script {
+                sh 'rm -rf *' // Alternative cleanup if cleanWs is not available
+            }
         }
         success {
             echo 'Pipeline succeeded!'
@@ -112,7 +114,9 @@ pipeline {
         failure {
             emailext body: 'The build failed. Please check the build logs for details.',
                      subject: "Build failed: ${env.BUILD_NUMBER}",
-                     to: 'avidanos75@gmail.com'
+                     to: 'avidanos75@gmail.com',
+                     attachLog: true,
+                     compressLog: true
         }
     }
 }
