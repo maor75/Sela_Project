@@ -27,6 +27,11 @@ pipeline {
                 imagePullPolicy: Always
                 securityContext:
                   privileged: true
+              - name: node
+                image: node:alpine
+                command:
+                - cat
+                tty: true
             '''
         }
     }
@@ -35,20 +40,29 @@ pipeline {
         DOCKER_IMAGE = "maoravidan/projectapp"
     }
     
-     stages {
+    stages {
         stage('Checkout Code') {
             steps {
                 checkout scm
             }
         }
-        stage('maven version') {
+        stage('Maven Version') {
             steps {
                 container('maven') {
                     sh 'mvn -version'
                 }
             }
         }
-
+        stage('Test FastAPI') {
+            steps {
+                container('maven') {
+                    // Ensure pytest is installed if not already in the container image
+                    sh 'pip install pytest httpx'
+                    // Run FastAPI tests
+                    sh 'pytest ./fast_api/tests'
+                }
+            }
+        }
         stage('Build and Push Docker Images') {
             when {
                 branch 'main'
@@ -57,7 +71,7 @@ pipeline {
                 container('ez-docker-helm-build') {
                     script {
                         withDockerRegistry(credentialsId: 'docker-hub') {
-                            // Build and Push Maven Docker image
+                            // Build and Push React Docker image
                             sh "docker build -t ${DOCKER_IMAGE}:react${env.BUILD_NUMBER} ./test1"
                             sh "docker push ${DOCKER_IMAGE}:react${env.BUILD_NUMBER}"
 
