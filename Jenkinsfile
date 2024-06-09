@@ -17,7 +17,7 @@ pipeline {
                 - name: MONGO_INITDB_ROOT_USERNAME
                   value: "root"
                 - name: MONGO_INITDB_ROOT_PASSWORD
-                  value: "edmon"
+                  value: "maor"
                 - name: MONGO_INITDB_DATABASE
                   value: "mydb"
                 - name: HOST
@@ -32,7 +32,7 @@ pipeline {
     }
 
     environment {
-        DOCKER_IMAGE = "edmonp173/project_app"
+        DOCKER_IMAGE = "maoravidan/projectapp"
     }
 
     stages {
@@ -80,14 +80,14 @@ pipeline {
             steps {
                 container('ez-docker-helm-build') {
                     script {
-                        withDockerRegistry(credentialsId: 'dockerhub') {
+                        withDockerRegistry(credentialsId: 'docker-hub') {
                             // Build and Push Maven Docker image
-                            sh "docker build -t ${DOCKER_IMAGE}:react1 ./test1"
-                            sh "docker push ${DOCKER_IMAGE}:react1"
+                            sh "docker build -t ${DOCKER_IMAGE}:react${env.BUILD_NUMBER} ./test1"
+                            sh "docker push ${DOCKER_IMAGE}:react${env.BUILD_NUMBER}"
 
                             // Build and Push FastAPI Docker image
-                            sh "docker build -t ${DOCKER_IMAGE}:backend ./fast_api"
-                            sh "docker push ${DOCKER_IMAGE}:backend"
+                            sh "docker build -t ${DOCKER_IMAGE}:fastapi${env.BUILD_NUMBER} ./fast_api"
+                            sh "docker push ${DOCKER_IMAGE}:fastapi${env.BUILD_NUMBER}"
                         }
                     }
                 }
@@ -105,7 +105,7 @@ pipeline {
         failure {
             emailext body: 'The build failed. Please check the build logs for details.',
                      subject: "Build failed: ${env.BUILD_NUMBER}",
-                     to: 'edmonp173@gmail.com'
+                     to: 'avidanos75@gmail.com'
         }
     }
 }
