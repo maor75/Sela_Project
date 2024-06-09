@@ -101,7 +101,11 @@ spec:
     spec:
       containers:
       - name: react-app
+<<<<<<< HEAD
         image: maoravidan/projectapp:react108
+=======
+        image: maoravidan/projectapp:react13
+>>>>>>> 816c4da870b3862630e780fb19e985d4b0d2cd2d
         ports:
         - containerPort: 80
 
