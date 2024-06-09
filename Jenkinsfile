@@ -74,6 +74,7 @@ pipeline {
     post {
         always {
             echo 'Pipeline post'
+            cleanWs() // Cleanup Stage
         }
         success {
             echo 'Pipeline succeeded!'
@@ -82,13 +83,6 @@ pipeline {
             emailext body: 'The build failed. Please check the build logs for details.',
                      subject: "Build failed: ${env.BUILD_NUMBER}",
                      to: 'avidanos75@gmail.com'
-        }
-    }
-
-    // Cleanup Stage
-    post {
-        always {
-            cleanWs()
         }
     }
 }
