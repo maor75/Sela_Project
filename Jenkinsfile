@@ -17,7 +17,7 @@ pipeline {
                 - name: MONGO_INITDB_ROOT_USERNAME
                   value: "root"
                 - name: MONGO_INITDB_ROOT_PASSWORD
-                  value: "maor"
+                  value: "edmon"
                 - name: MONGO_INITDB_DATABASE
                   value: "mydb"
                 - name: HOST
@@ -44,12 +44,13 @@ pipeline {
 
         stage('Wait for MongoDB') {
             steps {
-                container('maven') {
+                container('mongodb') {
                     script {
                         def maxTries = 30
                         def waitTime = 10
+                        def mongoRunning = false
                         for (int i = 0; i < maxTries; i++) {
-                            def mongoRunning = sh(script: 'nc -z localhost 27017', returnStatus: true) == 0
+                            mongoRunning = sh(script: 'nc -z localhost 27017', returnStatus: true) == 0
                             if (mongoRunning) {
                                 echo 'MongoDB is running!'
                                 break
@@ -86,7 +87,7 @@ pipeline {
                             sh "docker push ${DOCKER_IMAGE}:react${env.BUILD_NUMBER}"
 
                             // Build and Push FastAPI Docker image
-                            sh "docker build -t ${DOCKER_IMAGE}:fastapi${env.BUILD_NUMBER} ./fast_api"
+                            sh "docker build -t${DOCKER_IMAGE}:fastapi${env.BUILD_NUMBER} ./fast_api"
                             sh "docker push ${DOCKER_IMAGE}:fastapi${env.BUILD_NUMBER}"
                         }
                     }
