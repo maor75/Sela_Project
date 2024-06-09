@@ -11,17 +11,6 @@ pipeline {
                 command:
                 - cat
                 tty: true
-              - name: mongodb
-                image: mongo:latest
-                env:
-                - name: MONGO_INITDB_ROOT_USERNAME
-                  value: "root"
-                - name: MONGO_INITDB_ROOT_PASSWORD
-                  value: "edmon"
-                - name: MONGO_INITDB_DATABASE
-                  value: "mydb"
-                - name: HOST
-                  value: "localhost"
               - name: ez-docker-helm-build
                 image: ezezeasy/ez-docker-helm-build:1.41
                 imagePullPolicy: Always
@@ -33,6 +22,11 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = "maoravidan/projectapp"
+        MONGO_HOST = "mongodb.default.svc.cluster.local" // Update this with your MongoDB service DNS
+        MONGO_PORT = "27017"
+        MONGO_INITDB_ROOT_USERNAME = "root"
+        MONGO_INITDB_ROOT_PASSWORD = "maor"
+        MONGO_INITDB_DATABASE = "mydb"
     }
 
     stages {
@@ -44,13 +38,13 @@ pipeline {
 
         stage('Wait for MongoDB') {
             steps {
-                container('mongodb') {
+                container('maven') {
                     script {
                         def maxTries = 30
                         def waitTime = 10
                         def mongoRunning = false
                         for (int i = 0; i < maxTries; i++) {
-                            mongoRunning = sh(script: 'nc -z localhost 27017', returnStatus: true) == 0
+                            mongoRunning = sh(script: "nc -z ${env.MONGO_HOST} ${env.MONGO_PORT}", returnStatus: true) == 0
                             if (mongoRunning) {
                                 echo 'MongoDB is running!'
                                 break
@@ -87,7 +81,7 @@ pipeline {
                             sh "docker push ${DOCKER_IMAGE}:react${env.BUILD_NUMBER}"
 
                             // Build and Push FastAPI Docker image
-                            sh "docker build -t${DOCKER_IMAGE}:fastapi${env.BUILD_NUMBER} ./fast_api"
+                            sh "docker build -t ${DOCKER_IMAGE}:fastapi${env.BUILD_NUMBER} ./fast_api"
                             sh "docker push ${DOCKER_IMAGE}:fastapi${env.BUILD_NUMBER}"
                         }
                     }
@@ -106,7 +100,7 @@ pipeline {
         failure {
             emailext body: 'The build failed. Please check the build logs for details.',
                      subject: "Build failed: ${env.BUILD_NUMBER}",
-                     to: 'avidanos75@gmail.com'
+                     to: 'edmonp173@gmail.com'
         }
     }
 }
