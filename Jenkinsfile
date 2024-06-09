@@ -39,7 +39,7 @@ pipeline {
     environment {
         DOCKER_IMAGE = "maoravidan/projectapp"
     }
-    
+
     stages {
         stage('Checkout Code') {
             steps {
@@ -98,5 +98,4 @@ pipeline {
                      to: 'avidanos75@gmail.com'
         }
     }
-    }  
 }
