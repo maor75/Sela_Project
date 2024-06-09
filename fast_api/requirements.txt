@@ -3,6 +3,3 @@ uvicorn
 pydantic
 pymongo
 pytest
-httpx
-mongomock
-inputapi
