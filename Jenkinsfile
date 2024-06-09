@@ -57,8 +57,7 @@ pipeline {
             steps {
                 container('python') {
                     sh '''
-                        pip install pytest httpx
-                        pytest ./fast_api/tests
+                    pytest ./fast_api/tests
                     '''
                 }
             }
