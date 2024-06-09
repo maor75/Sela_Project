@@ -56,12 +56,14 @@ pipeline {
                     script {
                         withDockerRegistry(credentialsId: 'docker-hub') {
                             // Build and Push React Docker image
-                            sh "docker build -t maoravidan/projectapp:react${env.BUILD_NUMBER} ./test1"
-                            sh "docker push maoravidan/projectapp:react${env.BUILD_NUMBER}"
+                            def reactTag = "maoravidan/projectapp:react-${env.BUILD_NUMBER}"
+                            sh "docker build -t $reactTag ./test1"
+                            sh "docker push $reactTag"
 
                             // Build and Push FastAPI Docker image
-                            sh "docker build -t maoravidan/projectapp:fastapi${env.BUILD_NUMBER} ./fast_api"
-                            sh "docker push maoravidan/projectapp:fastapi${env.BUILD_NUMBER}"
+                            def fastapiTag = "maoravidan/projectapp:fastapi-${env.BUILD_NUMBER}"
+                            sh "docker build -t $fastapiTag ./fast_api"
+                            sh "docker push $fastapiTag"
                         }
                     }
                 }
@@ -80,6 +82,13 @@ pipeline {
             emailext body: 'The build failed. Please check the build logs for details.',
                      subject: "Build failed: ${env.BUILD_NUMBER}",
                      to: 'avidanos75@gmail.com'
+        }
+    }
+
+    // Cleanup Stage
+    post {
+        always {
+            cleanWs()
         }
     }
 }
