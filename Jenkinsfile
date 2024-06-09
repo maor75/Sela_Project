@@ -1,4 +1,8 @@
 pipeline {
+    options {
+        // Add pipeline options here
+    }
+    
     agent {
         kubernetes {
             yaml '''
@@ -10,7 +14,6 @@ pipeline {
                 image: maven:alpine
                 command:
                 - cat
-                tty: true
               - name: mongodb
                 image: mongo:latest
                 env:
@@ -26,7 +29,6 @@ pipeline {
                 image: python:3.11-alpine
                 command:
                 - cat
-                tty: true
             '''
         }
     }
@@ -52,20 +54,16 @@ pipeline {
                 branch 'main'
             }
             steps {
-                container('ez-docker-helm-build') {
-                    script {
-                        withDockerRegistry(credentialsId: 'docker-hub') {
-                            // Build and Push React Docker image
-                            def reactTag = "maoravidan/projectapp:react-${env.BUILD_NUMBER}"
-                            sh "docker build -t $reactTag ./test1"
-                            sh "docker push $reactTag"
+                script {
+                    // Build and Push React Docker image
+                    def reactTag = "maoravidan/projectapp:react-${env.BUILD_NUMBER}"
+                    sh "docker build -t $reactTag ./test1"
+                    sh "docker push $reactTag"
 
-                            // Build and Push FastAPI Docker image
-                            def fastapiTag = "maoravidan/projectapp:fastapi-${env.BUILD_NUMBER}"
-                            sh "docker build -t $fastapiTag ./fast_api"
-                            sh "docker push $fastapiTag"
-                        }
-                    }
+                    // Build and Push FastAPI Docker image
+                    def fastapiTag = "maoravidan/projectapp:fastapi-${env.BUILD_NUMBER}"
+                    sh "docker build -t $fastapiTag ./fast_api"
+                    sh "docker push $fastapiTag"
                 }
             }
         }
@@ -80,9 +78,7 @@ pipeline {
             echo 'Pipeline succeeded!'
         }
         failure {
-            emailext body: 'The build failed. Please check the build logs for details.',
-                     subject: "Build failed: ${env.BUILD_NUMBER}",
-                     to: 'avidanos75@gmail.com'
+            notifyBuild('The build failed. Please check the build logs for details.')
         }
     }
 }
