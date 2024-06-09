@@ -6,14 +6,6 @@ pipeline {
             kind: Pod
             spec:
               containers:
-              - name: dind
-                image: docker:20.10.9
-                command: ["dockerd", "--host=unix:///var/run/docker.sock"]
-                securityContext:
-                  privileged: true
-                volumeMounts:
-                - name: docker-socket
-                  mountPath: /var/run/docker.sock
               - name: maven
                 image: maven:alpine
                 command:
@@ -29,19 +21,23 @@ pipeline {
                 imagePullPolicy: Always
                 securityContext:
                   privileged: true
-            volumes:
-            - name: docker-socket
-              hostPath:
-                path: /var/run/docker.sock
             '''
         }
     }
 
     environment {
-         DOCKER_IMAGE = "maoravidan/projectapp"
+        DOCKER_IMAGE = "maoravidan/projectapp"
     }
 
     stages {
+        stage('Checkout Code') {
+            steps {
+                script {
+                    checkout([$class: 'GitSCM', branches: [[name: '*/main']], userRemoteConfigs: [[url: 'https://github.com/maor75/Sela_Project.git']]])
+                }
+            }
+        }
+
         stage('Wait for MongoDB') {
             steps {
                 container('python') {
@@ -96,7 +92,7 @@ pipeline {
                             sh "docker build -t ${DOCKER_IMAGE}:react1 ./test1"
                             sh "docker push ${DOCKER_IMAGE}:react1"
                             sh "docker push ${DOCKER_IMAGE}:backend"
-                        }    
+                        }
                     }
                 }
             }
