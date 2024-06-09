@@ -3,7 +3,7 @@ from pymongo.errors import ConnectionFailure
 
 # Configuration details
 MONGO_DB_USERNAME = 'root'
-MONGO_DB_PASSWORD = 'edmon'
+MONGO_DB_PASSWORD = 'maor'
 MONGO_DB_HOST = 'mongodb'
 MONGO_DB_PORT = 27017
 MONGO_DB_NAME = 'mydb'
