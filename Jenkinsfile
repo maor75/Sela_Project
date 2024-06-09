@@ -34,22 +34,13 @@ pipeline {
     environment {
         DOCKER_IMAGE = "maoravidan/projectapp"
     }
-<<<<<<< HEAD
-
-    stages {
-=======
     
      stages {
->>>>>>> 816c4da870b3862630e780fb19e985d4b0d2cd2d
         stage('Checkout Code') {
             steps {
                 checkout scm
             }
         }
-<<<<<<< HEAD
-
-=======
->>>>>>> 816c4da870b3862630e780fb19e985d4b0d2cd2d
         stage('maven version') {
             steps {
                 container('maven') {
@@ -67,21 +58,12 @@ pipeline {
                     script {
                         withDockerRegistry(credentialsId: 'docker-hub') {
                             // Build and Push Maven Docker image
-<<<<<<< HEAD
-                            sh "docker build -t ${DOCKER_IMAGE}:react ./test1"
-                            sh "docker push ${DOCKER_IMAGE}:react"
-
-                            // Build and Push FastAPI Docker image
-                            sh "docker build -t ${DOCKER_IMAGE}:fastapi ./fast_api"
-                            sh "docker push ${DOCKER_IMAGE}:fastapi"
-=======
                             sh "docker build -t ${DOCKER_IMAGE}:react${env.BUILD_NUMBER} ./test1"
                             sh "docker push ${DOCKER_IMAGE}:react${env.BUILD_NUMBER}"
 
                             // Build and Push FastAPI Docker image
                             sh "docker build -t ${DOCKER_IMAGE}:fastapi${env.BUILD_NUMBER} ./fast_api"
                             sh "docker push ${DOCKER_IMAGE}:fastapi${env.BUILD_NUMBER}"
->>>>>>> 816c4da870b3862630e780fb19e985d4b0d2cd2d
                         }
                     }
                 }
