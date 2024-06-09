@@ -96,7 +96,7 @@ pipeline {
                             sh "docker build -t ${DOCKER_IMAGE}:react1 ./test1"
                             sh "docker push ${DOCKER_IMAGE}:react1"
                             sh "docker push ${DOCKER_IMAGE}:backend"
-                        }
+                        }    
                     }
                 }
             }
