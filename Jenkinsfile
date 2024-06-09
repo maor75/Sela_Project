@@ -9,12 +9,8 @@ pipeline {
               - name: maven
                 image: maven:alpine
                 command:
-                - sh
-                - -c
-                - |
-                  while true; do
-                    sleep 3600;
-                  done
+                - cat
+                tty: true
               - name: mongodb
                 image: mongo:latest
                 env:
@@ -26,50 +22,50 @@ pipeline {
                   value: "mydb"
                 - name: HOST
                   value: "localhost"
-              - name: python
-                image: python:3.11-alpine
-                command:
-                - sh
-                - -c
-                - |
-                  while true; do
-                    sleep 3600;
-                  done
+              - name: ez-docker-helm-build
+                image: ezezeasy/ez-docker-helm-build:1.41
+                imagePullPolicy: Always
+                securityContext:
+                  privileged: true
             '''
         }
     }
 
-    stages {
+    environment {
+        DOCKER_IMAGE = "maoravidan/projectapp"
+    }
+    
+     stages {
         stage('Checkout Code') {
             steps {
                 checkout scm
             }
         }
-        stage('Test FastAPI') {
+        stage('maven version') {
             steps {
-                container('python') {
-                    sh '''
-                    pip install pytest httpx
-                    pytest ./fast_api/tests
-                    '''
+                container('maven') {
+                    sh 'mvn -version'
                 }
             }
         }
+
         stage('Build and Push Docker Images') {
             when {
                 branch 'main'
             }
             steps {
-                script {
-                    // Build and Push React Docker image
-                    def reactTag = "maoravidan/projectapp:react-${env.BUILD_NUMBER}"
-                    sh "docker build -t $reactTag ./test1"
-                    sh "docker push $reactTag"
+                container('ez-docker-helm-build') {
+                    script {
+                        withDockerRegistry(credentialsId: 'docker-hub') {
+                            // Build and Push Maven Docker image
+                            sh "docker build -t ${DOCKER_IMAGE}:react${env.BUILD_NUMBER} ./test1"
+                            sh "docker push ${DOCKER_IMAGE}:react${env.BUILD_NUMBER}"
 
-                    // Build and Push FastAPI Docker image
-                    def fastapiTag = "maoravidan/projectapp:fastapi-${env.BUILD_NUMBER}"
-                    sh "docker build -t $fastapiTag ./fast_api"
-                    sh "docker push $fastapiTag"
+                            // Build and Push FastAPI Docker image
+                            sh "docker build -t ${DOCKER_IMAGE}:fastapi${env.BUILD_NUMBER} ./fast_api"
+                            sh "docker push ${DOCKER_IMAGE}:fastapi${env.BUILD_NUMBER}"
+                        }
+                    }
                 }
             }
         }
@@ -77,16 +73,15 @@ pipeline {
 
     post {
         always {
-            node {
-                echo 'Pipeline post'
-                cleanWs() // Cleanup Stage
-            }
+            echo 'Pipeline post'
         }
         success {
             echo 'Pipeline succeeded!'
         }
         failure {
-            notifyBuild('The build failed. Please check the build logs for details.')
+            emailext body: 'The build failed. Please check the build logs for details.',
+                     subject: "Build failed: ${env.BUILD_NUMBER}",
+                     to: 'avidanos75@gmail.com'
         }
-    }
+    }  
 }
