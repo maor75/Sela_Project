@@ -3,8 +3,5 @@ uvicorn
 pydantic
 pymongo
 pytest
-<<<<<<< HEAD
 httpx
-=======
-httpx
->>>>>>> 5ef7a1adf14f281d8cd0b6d1e5c57497a421147a
+
