@@ -27,8 +27,8 @@ pipeline {
                 imagePullPolicy: Always
                 securityContext:
                   privileged: true
-              - name: node
-                image: node:alpine
+              - name: python
+                image: python:3.11-alpine
                 command:
                 - cat
                 tty: true
@@ -55,11 +55,11 @@ pipeline {
         }
         stage('Test FastAPI') {
             steps {
-                container('maven') {
-                    // Ensure pytest is installed if not already in the container image
-                    sh 'pip install pytest httpx'
-                    // Run FastAPI tests
-                    sh 'pytest ./fast_api/tests'
+                container('python') {
+                    sh '''
+                        pip install pytest httpx
+                        pytest ./fast_api/tests
+                    '''
                 }
             }
         }
