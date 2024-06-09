@@ -66,7 +66,7 @@ pipeline {
             steps {
                 script {
                     // Execute config-test.py script within the Python container
-                    sh "docker exec python-container python3 ./tests/test_fastapi.py > test_logs.txt"
+                    sh "docker exec python-container python3 config-test.py > test_logs.txt"
                 }
             }
         }
