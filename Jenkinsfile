@@ -9,7 +9,12 @@ pipeline {
               - name: maven
                 image: maven:alpine
                 command:
-                - cat
+                - sh
+                - -c
+                - |
+                  while true; do
+                    sleep 3600;
+                  done
               - name: mongodb
                 image: mongo:latest
                 env:
@@ -24,7 +29,12 @@ pipeline {
               - name: python
                 image: python:3.11-alpine
                 command:
-                - cat
+                - sh
+                - -c
+                - |
+                  while true; do
+                    sleep 3600;
+                  done
             '''
         }
     }
@@ -67,8 +77,10 @@ pipeline {
 
     post {
         always {
-            echo 'Pipeline post'
-            cleanWs() // Cleanup Stage
+            node {
+                echo 'Pipeline post'
+                cleanWs() // Cleanup Stage
+            }
         }
         success {
             echo 'Pipeline succeeded!'
