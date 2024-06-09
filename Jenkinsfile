@@ -97,9 +97,6 @@ pipeline {
                      subject: "Build failed: ${env.BUILD_NUMBER}",
                      to: 'avidanos75@gmail.com'
         }
-<<<<<<< HEAD
     }
-=======
     }  
->>>>>>> 5ef7a1adf14f281d8cd0b6d1e5c57497a421147a
 }
