@@ -1,8 +1,4 @@
 pipeline {
-    options {
-        // Add pipeline options here
-    }
-    
     agent {
         kubernetes {
             yaml '''
