@@ -30,14 +30,6 @@ pipeline {
     }
 
     stages {
-        stage('Checkout Code') {
-            steps {
-                script {
-                    checkout([$class: 'GitSCM', branches: [[name: '*/main']], userRemoteConfigs: [[url: 'https://https://github.com/maor75/Sela_Project.git']]])
-                }
-            }
-        }
-
         stage('Wait for MongoDB') {
             steps {
                 container('python') {
