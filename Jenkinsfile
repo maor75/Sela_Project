@@ -6,6 +6,14 @@ pipeline {
             kind: Pod
             spec:
               containers:
+              - name: dind
+                image: docker:20.10.9
+                command: ["dockerd", "--host=unix:///var/run/docker.sock"]
+                securityContext:
+                  privileged: true
+                volumeMounts:
+                - name: docker-socket
+                  mountPath: /var/run/docker.sock
               - name: maven
                 image: maven:alpine
                 command:
@@ -21,6 +29,10 @@ pipeline {
                 imagePullPolicy: Always
                 securityContext:
                   privileged: true
+            volumes:
+            - name: docker-socket
+              hostPath:
+                path: /var/run/docker.sock
             '''
         }
     }
