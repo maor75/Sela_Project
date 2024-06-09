@@ -4,7 +4,7 @@ import DynamicInputComponent from "../components/UI/pluse/pluse";
 const Edmon = () => {
     return(
         <div>
-            <h1>have a new provider?</h1>
+            <h1>Have A New Provider?</h1>
             <InputForm></InputForm>
             <DynamicInputComponent></DynamicInputComponent>
         </div>

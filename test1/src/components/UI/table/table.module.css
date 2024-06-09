@@ -2,8 +2,8 @@ body {
     font-family: 'Open Sans', sans-serif;
     font-weight: 300;
     line-height: 1.42em;
-    color:#A7A1AE;
-    background-color:#1F2739;
+    color:#b6b3b9;
+    background-color:#1a1a1a;
 }
 
 h1 {
@@ -11,17 +11,17 @@ h1 {
     font-weight: 300;
     line-height:1em;
     text-align: center;
-    color: #4DC3FA;
+    color: #e3cccc;
   }
 
   h2 {
-    font-size:1em;
+    font-size:2em;
     font-weight: 300;
     text-align: center;
     display: block;
     line-height:1em;
     padding-bottom: 2em;
-    color: #FB667A;
+    color: #969ea5;
   }
 
   h2 a {

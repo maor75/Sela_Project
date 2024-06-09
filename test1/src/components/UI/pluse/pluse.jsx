@@ -65,7 +65,7 @@ function DynamicInputComponent() {
                 value={products[index]?.id || ''}
                 onChange={(e) => handleInputChange(e, index, 'id')}
               />
-              <label> ID:</label>
+              <label>Product ID:</label>
             </span>
             <span>
               <input
@@ -75,7 +75,7 @@ function DynamicInputComponent() {
                 value={products[index]?.name || ''}
                 onChange={(e) => handleInputChange(e, index, 'name')}
               />
-              <label>Name:</label>
+              <label>Product Name:</label>
             </span>
             <span>
               <input

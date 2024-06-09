@@ -6,8 +6,7 @@ const About = () => {
 
     return (
         <div>
-
-
+             <h1>Welcome To Providers Page</h1>
             <Table FetchUrl={httpUrl}></Table>
         </div>
     );

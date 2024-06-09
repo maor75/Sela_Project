@@ -10,21 +10,21 @@ const Navbar = () => {
   return (
     <nav className={cl.nav}>
       <Link to="/home" className={cl.nav__link}>
-        <i className={[cl.nav__icon, "material-icons"].join(' ')}>dashboard</i>
-        <span className={cl.nav__text}>home</span>
-      </Link>
-      <Link to="/about" className={cl.nav__link}>
-        <i className={[cl.nav__icon, "material-icons"].join(' ')}>person</i>
-        <span className={cl.nav__text}>סחורה</span>
+        <i className={[cl.nav__icon, "material-icons"].join(' ')}>home</i>
+        <span className={cl.nav__text}>Home</span>
       </Link>
       <Link to="/input" className={cl.nav__link}>
         <i className={[cl.nav__icon, "material-icons"].join(' ')}>devices</i>
-        <span className={cl.nav__text}>הזמנות סחורה</span>
+        <span className={cl.nav__text}>Orders</span>
       </Link>
-      <a href="" className={cl.nav__link}>
-        <i className={[cl.nav__icon, "material-icons"].join(' ')}>lock</i>
-        <span className={cl.nav__text}>מכירות</span>
-      </a>
+      <Link to="/about" className={cl.nav__link}>
+        <i className={[cl.nav__icon, "material-icons"].join(' ')}>person</i>
+        <span className={cl.nav__text}>Providers</span>
+      </Link>
+      <Link to="/stocke" className={cl.nav__link}>
+        <i className={[cl.nav__icon, "material-icons"].join(' ')}>dashboard</i>
+        <span className={cl.nav__text}>Stock</span>
+      </Link>
     </nav>
   );
 };

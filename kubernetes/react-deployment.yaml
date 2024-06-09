@@ -9,21 +9,39 @@ spec:
   resources:
     requests:
       storage: 1Gi
+  storageClassName: standard
+---
+# mongodb-pv.yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mongo-pv
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: standard
+  hostPath:
+    path: "/data/pv-data/mongodb"
 ---
 # mongodb-deployment.yaml
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: mongo-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      db: mongodb
+      app: mongodb  # Consistent naming
   template:
     metadata:
       labels:
-        db: mongodb
+        app: mongodb  # Consistent naming
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "27017"
     spec:
       containers:
       - name: mongo-container
@@ -37,11 +55,13 @@ spec:
           value: "maor"
         - name: MONGO_INITDB_DATABASE
           value: "mydb"
+        volumeMounts:
+        - name: mongodb-data
+          mountPath: /data/db
       volumes:
       - name: mongodb-data
         persistentVolumeClaim:
           claimName: mongodb-pvc
-
 
 
 ---
@@ -53,7 +73,7 @@ metadata:
 spec:
   type: ClusterIP
   selector:
-    db: mongodb
+    app: mongodb  # Consistent naming
   ports:
   - port: 27017
     targetPort: 27017
@@ -75,10 +95,13 @@ spec:
     metadata:
       labels:
         app: react-app
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "3000"
     spec:
       containers:
       - name: react-app
-        image: maoravidan/projectapp:react
+        image: maoravidan/projectapp:react108
         ports:
         - containerPort: 80
 
@@ -89,13 +112,15 @@ kind: Service
 metadata:
   name: react-service
 spec:
+  type: NodePort
   selector:
     app: react-app
   ports:
-  - protocol: TCP
-    port: 80
+  - name: http
+    port: 8082
     targetPort: 80
-  type: NodePort
+    nodePort: 30005
+    protocol: TCP
 
 ---
 # fastapi-deployment.yaml
@@ -112,10 +137,13 @@ spec:
     metadata:
       labels:
         app: fastapi
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
     spec:
       containers:
       - name: fastapi
-        image: maoravidan/projectapp:fastapi
+        image: maoravidan/projectapp:fastapi13
         ports:
         - containerPort: 8000
 
@@ -126,29 +154,14 @@ kind: Service
 metadata:
   name: fastapi-service
 spec:
+  type: NodePort
   selector:
     app: fastapi
   ports:
-  - protocol: TCP
-    port: 8000
+  - name: http2
+    port: 8081
     targetPort: 8000
-  type: NodePort
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    nodePort: 30006
+    protocol: TCP
 
 

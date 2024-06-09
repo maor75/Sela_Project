@@ -22,10 +22,11 @@ services:
       - "27017:27017"
     volumes:
       - mongodb_data:/data/db
+    # Exposes MongoDB's default port and mounts a volume for data persistence
 
   react:
     build: ./test1
-    image: maoravidan/projectapp:latest
+    image: maoravidan/projectapp:react100
     networks:
       my_network:
         ipv4_address: 172.16.0.3
@@ -33,10 +34,12 @@ services:
       - "3000:3000"
     depends_on:
       - fastapi
+    # Builds the React application from the local directory and exposes port 3000
+    # The React app will wait for the FastAPI service to be ready
 
   fastapi:
     build: ./fast_api
-    image: maoravidan/projectapp:fastapi
+    image: maoravidan/projectapp:fastapi13
     networks:
       my_network:
         ipv4_address: 172.16.0.4
@@ -44,6 +47,9 @@ services:
       - "8000:8000"
     depends_on:
       - mongodb
+    # Builds the FastAPI application from the local directory and exposes port 8000
+    # The FastAPI service will wait for the MongoDB service to be ready
 
 volumes:
   mongodb_data:
+    # Defines a volume for MongoDB data
