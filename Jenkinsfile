@@ -22,11 +22,6 @@ pipeline {
                   value: "mydb"
                 - name: HOST
                   value: "localhost"
-              - name: ez-docker-helm-build
-                image: ezezeasy/ez-docker-helm-build:1.41
-                imagePullPolicy: Always
-                securityContext:
-                  privileged: true
               - name: python
                 image: python:3.11-alpine
                 command:
@@ -36,27 +31,17 @@ pipeline {
         }
     }
 
-    environment {
-        DOCKER_IMAGE = "maoravidan/projectapp"
-    }
-
     stages {
         stage('Checkout Code') {
             steps {
                 checkout scm
             }
         }
-        stage('Maven Version') {
-            steps {
-                container('maven') {
-                    sh 'mvn -version'
-                }
-            }
-        }
         stage('Test FastAPI') {
             steps {
                 container('python') {
                     sh '''
+                    pip install pytest httpx
                     pytest ./fast_api/tests
                     '''
                 }
@@ -71,12 +56,12 @@ pipeline {
                     script {
                         withDockerRegistry(credentialsId: 'docker-hub') {
                             // Build and Push React Docker image
-                            sh "docker build -t ${DOCKER_IMAGE}:react${env.BUILD_NUMBER} ./test1"
-                            sh "docker push ${DOCKER_IMAGE}:react${env.BUILD_NUMBER}"
+                            sh "docker build -t maoravidan/projectapp:react${env.BUILD_NUMBER} ./test1"
+                            sh "docker push maoravidan/projectapp:react${env.BUILD_NUMBER}"
 
                             // Build and Push FastAPI Docker image
-                            sh "docker build -t ${DOCKER_IMAGE}:fastapi${env.BUILD_NUMBER} ./fast_api"
-                            sh "docker push ${DOCKER_IMAGE}:fastapi${env.BUILD_NUMBER}"
+                            sh "docker build -t maoravidan/projectapp:fastapi${env.BUILD_NUMBER} ./fast_api"
+                            sh "docker push maoravidan/projectapp:fastapi${env.BUILD_NUMBER}"
                         }
                     }
                 }
