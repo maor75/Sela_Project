@@ -34,13 +34,14 @@ pipeline {
     environment {
         DOCKER_IMAGE = "maoravidan/projectapp"
     }
-    
-     stages {
+
+    stages {
         stage('Checkout Code') {
             steps {
                 checkout scm
             }
         }
+
         stage('maven version') {
             steps {
                 container('maven') {
@@ -83,5 +84,5 @@ pipeline {
                      subject: "Build failed: ${env.BUILD_NUMBER}",
                      to: 'avidanos75@gmail.com'
         }
-    }  
+    }
 }
