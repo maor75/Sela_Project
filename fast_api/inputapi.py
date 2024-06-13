@@ -94,7 +94,7 @@ def update_customer(customer: Customer):
             {"$set": update_data},
             return_document=True
         )
-
+ 
         return {"message": "Customer updated successfully.", "updated_customer": result}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error updating customer: {e}")
