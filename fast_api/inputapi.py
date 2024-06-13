@@ -1,3 +1,4 @@
+
 from fastapi import FastAPI, HTTPException
 from pymongo import MongoClient
 from fastapi.middleware.cors import CORSMiddleware
@@ -19,7 +20,7 @@ MONGO_DB_HOST = 'mongodb'
 MONGO_DB_PORT = 27017
 MONGO_DB_NAME = 'mydb'
 
-client = MongoClient(f"mongodb://{MONGO_DB_USERNAME}:{MONGO_DB_PASSWORD}@localhost:{MONGO_DB_PORT}")
+client = MongoClient(f"mongodb://{MONGO_DB_USERNAME}:{MONGO_DB_PASSWORD}@mongodb")
 db = client[MONGO_DB_NAME]
 
 class Customer(BaseModel):
@@ -32,7 +33,7 @@ class Product(BaseModel):
     name: str
     provider: str
 
-@app.get("/customers")
+@app.get("/costumers")
 def get_customers():
     try:
         customers = list(db.customers.find({}, {"_id": 0}))  # Fetch all customers and exclude the MongoDB _id field
@@ -63,7 +64,7 @@ def create_product(products: list[Product]):
         return {"message": "Products created successfully."}
     except Exception as e:
         raise HTTPException(status_code=500, detail="Error creating products")
-
+    
 @app.post("/delete")
 def delete_customer(customer: Customer):
     try:
@@ -94,7 +95,7 @@ def update_customer(customer: Customer):
             {"$set": update_data},
             return_document=True
         )
- 
+
         return {"message": "Customer updated successfully.", "updated_customer": result}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error updating customer: {e}")
