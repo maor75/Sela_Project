@@ -66,7 +66,7 @@ function CustomerTable1({ FetchUrl }) {
       console.error('Error:', error);
     });
   };
-
+ 
   return (
     <div>
       <table className={cl.container}>
