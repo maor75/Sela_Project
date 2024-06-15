@@ -30,6 +30,11 @@ pipeline {
                 command:
                 - cat
                 tty: true
+              - name: mongo-cli
+                image: mongo:latest
+                command:
+                - cat
+                tty: true
             '''
         }
     }
@@ -77,19 +82,20 @@ pipeline {
 
         stage('Start MongoDB') {
             steps {
-                container('mongodb') {
+                container('mongo-cli') {
                     script {
                         // Wait for MongoDB to be ready
-                        def retries = 3
+                        def retries = 5
                         while (retries > 0) {
                             try {
                                 sh '''
-                                mongo --username root --password maor --eval "db.stats()"
+                                echo "Checking MongoDB readiness..."
+                                mongo --username root --password maor --eval "db.stats()" --host localhost --port 27017
                                 '''
                                 break
                             } catch (Exception e) {
                                 echo 'Waiting for MongoDB to be ready...'
-                                sleep 90
+                                sleep 30
                                 retries--
                             }
                         }
@@ -111,7 +117,7 @@ pipeline {
                         '''
 
                         // Wait for API to be ready
-                        def retries = 3
+                        def retries = 5
                         while (retries > 0) {
                             try {
                                 sh '''
