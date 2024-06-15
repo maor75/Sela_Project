@@ -89,7 +89,7 @@ pipeline {
                                 break
                             } catch (Exception e) {
                                 echo 'Waiting for MongoDB to be ready...'
-                                sleep 5
+                                sleep 90
                                 retries--
                             }
                         }
@@ -120,7 +120,7 @@ pipeline {
                                 break
                             } catch (Exception e) {
                                 echo 'Waiting for API to be ready...'
-                                sleep 5
+                                sleep 30
                                 retries--
                             }
                         }
