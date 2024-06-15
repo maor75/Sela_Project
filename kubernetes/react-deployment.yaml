@@ -101,7 +101,7 @@ spec:
     spec:
       containers:
       - name: react-app
-        image: maoravidan/projectapp:react59
+        image: maoravidan/projectapp:react61
         ports:
         - containerPort: 80
 
@@ -143,7 +143,7 @@ spec:
     spec:
       containers:
       - name: fastapi
-        image: maoravidan/projectapp:fastapi59
+        image: maoravidan/projectapp:fastapi61
         ports:
         - containerPort: 8000
 

@@ -2,7 +2,7 @@ import React from "react";
 import Table from "../components/UI/table/table";
 
 const About = () => {
-    const httpUrl = 'http://localhost:8000/customers';
+    const httpUrl = 'http://localhost:8000/costumers';
 
     return (
         <div>
