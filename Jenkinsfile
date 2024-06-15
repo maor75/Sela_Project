@@ -83,34 +83,6 @@ pipeline {
                 }
             }
         }
-
-        stage('Start MongoDB') {
-            steps {
-                container('mongo-cli') {
-                    script {
-                        // Wait for MongoDB to be ready
-                        def retries = 5
-                        while (retries > 0) {
-                            try {
-                                sh '''
-                                echo "Checking MongoDB readiness..."
-                                mongo --username root --password maor --eval "db.stats()" --host localhost --port 27017
-                                '''
-                                break
-                            } catch (Exception e) {
-                                echo 'Waiting for MongoDB to be ready...'
-                                sleep 30
-                                retries--
-                            }
-                        }
-                        if (retries == 0) {
-                            error 'MongoDB did not start in time'
-                        }
-                    }
-                }
-            }
-        }
-
         stage('Deploy API and Run Tests') {
             steps {
                 container('tester') {
