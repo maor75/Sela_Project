@@ -77,7 +77,6 @@ pipeline {
 
                             // Build and Push FastAPI Docker image
                             sh "docker build -t ${DOCKER_IMAGE}:fastapi${env.BUILD_NUMBER} ./fast_api"
-                            sh "docker push ${DOCKER_IMAGE}:fastapi${env.BUILD_NUMBER}"
                         }
                     }
                 }
