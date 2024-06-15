@@ -47,7 +47,11 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                checkout scm
+                script {
+                    retry(3) {
+                        checkout scm
+                    }
+                }
             }
         }
 
@@ -138,7 +142,7 @@ pipeline {
                         sh '''
                         echo "Testing root endpoint"
                         STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/)
-                        if [ $STATUS_CODE -ne 200 ]; then
+                        if [ $STATUS_CODE -ne 200]; then
                             echo "Root endpoint failed with status code: $STATUS_CODE"
                             exit 1
                         fi
