@@ -20,19 +20,23 @@ pipeline {
                   value: "maor"
                 - name: MONGO_INITDB_DATABASE
                   value: "mydb"
-                - name: HOST
-                  value: "localhost"
               - name: ez-docker-helm-build
                 image: ezezeasy/ez-docker-helm-build:1.41
                 imagePullPolicy: Always
                 securityContext:
                   privileged: true
+              - name: tester
+                image: curlimages/curl:latest
+                command:
+                - cat
+                tty: true
             '''
         }
     }
 
     environment {
         DOCKER_IMAGE = "maoravidan/projectapp"
+        MONGO_URI = "mongodb://root:maor@localhost:27017/mydb"
     }
 
     stages {
@@ -66,6 +70,43 @@ pipeline {
                             sh "docker build -t ${DOCKER_IMAGE}:fastapi${env.BUILD_NUMBER} ./fast_api"
                             sh "docker push ${DOCKER_IMAGE}:fastapi${env.BUILD_NUMBER}"
                         }
+                    }
+                }
+            }
+        }
+
+        stage('Start MongoDB') {
+            steps {
+                container('mongodb') {
+                    script {
+                        // Wait for MongoDB to be ready
+                        def retries = 10
+                        while (retries > 0) {
+                            try {
+                                sh 'mongo --eval "db.stats()"'
+                                break
+                            } catch (Exception e) {
+                                echo 'Waiting for MongoDB to be ready...'
+                                sleep 5
+                                retries--
+                            }
+                        }
+                        if (retries == 0) {
+                            error 'MongoDB did not start in time'
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Run API Tests') {
+            steps {
+                container('tester') {
+                    script {
+                        // Replace with your actual API test commands
+                        sh '''
+                        curl -s http://localhost:8000/api/endpoint -o /dev/null -w "%{http_code}" | grep 200
+                        '''
                     }
                 }
             }
