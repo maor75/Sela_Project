@@ -75,29 +75,7 @@ pipeline {
             }
         }
 
-        stage('Start MongoDB') {
-            steps {
-                container('mongodb') {
-                    script {
-                        // Wait for MongoDB to be ready
-                        def retries = 10
-                        while (retries > 0) {
-                            try {
-                                sh 'mongo --eval "db.stats()"'
-                                break
-                            } catch (Exception e) {
-                                echo 'Waiting for MongoDB to be ready...'
-                                sleep 5
-                                retries--
-                            }
-                        }
-                        if (retries == 0) {
-                            error 'MongoDB did not start in time'
-                        }
-                    }
-                }
-            }
-        }
+
 
         stage('Run API Tests') {
             steps {
