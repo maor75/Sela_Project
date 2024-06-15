@@ -80,7 +80,7 @@ pipeline {
                 container('mongodb') {
                     script {
                         // Wait for MongoDB to be ready
-                        def retries = 90
+                        def retries = 3
                         while (retries > 0) {
                             try {
                                 sh '''
@@ -111,7 +111,7 @@ pipeline {
                         '''
 
                         // Wait for API to be ready
-                        def retries = 60
+                        def retries = 3
                         while (retries > 0) {
                             try {
                                 sh '''
