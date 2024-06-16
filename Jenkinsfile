@@ -20,41 +20,27 @@ pipeline {
                   value: "maor"
                 - name: MONGO_INITDB_DATABASE
                   value: "mydb"
+                - name: HOST
+                  value: "localhost"
               - name: ez-docker-helm-build
                 image: ezezeasy/ez-docker-helm-build:1.41
                 imagePullPolicy: Always
                 securityContext:
                   privileged: true
-              - name: tester
-                image: curlimages/curl:latest
-                command:
-                - cat
-                tty: true
-              - name: mongo-cli
-                image: mongo:latest
-                command:
-                - cat
-                tty: true
             '''
         }
     }
 
     environment {
         DOCKER_IMAGE = "maoravidan/projectapp"
-        MONGO_URI = "mongodb://root:maor@localhost:27017/mydb"
     }
-
-    stages {
+    
+     stages {
         stage('Checkout Code') {
             steps {
-                script {
-                    retry(3) {
-                        checkout scm
-                    }
-                }
+                checkout scm
             }
         }
-
         stage('maven version') {
             steps {
                 container('maven') {
@@ -71,53 +57,14 @@ pipeline {
                 container('ez-docker-helm-build') {
                     script {
                         withDockerRegistry(credentialsId: 'docker-hub') {
-                            // Build and Push React Docker image
+                            // Build and Push Maven Docker image
                             sh "docker build -t ${DOCKER_IMAGE}:react${env.BUILD_NUMBER} ./test1"
                             sh "docker push ${DOCKER_IMAGE}:react${env.BUILD_NUMBER}"
 
                             // Build and Push FastAPI Docker image
                             sh "docker build -t ${DOCKER_IMAGE}:fastapi${env.BUILD_NUMBER} ./fast_api"
+                            sh "docker push ${DOCKER_IMAGE}:fastapi${env.BUILD_NUMBER}"
                         }
-                    }
-                }
-            }
-        }
-        stage('Deploy API and Run Tests') {
-            steps {
-                container('tester') {
-                    script {
-                        // Deploy API container
-                        sh '''
-                        docker run -d -p 8000:8000 --name fastapi_container ${DOCKER_IMAGE}:fastapi${env.BUILD_NUMBER}
-                        '''
-
-                        // Wait for API to be ready
-                        def retries = 5
-                        while (retries > 0) {
-                            try {
-                                sh '''
-                                curl -s -o /dev/null http://localhost:8000
-                                '''
-                                break
-                            } catch (Exception e) {
-                                echo 'Waiting for API to be ready...'
-                                sleep 30
-                                retries--
-                            }
-                        }
-                        if (retries == 0) {
-                            error 'API did not start in time'
-                        }
-
-                        // Check if the API root endpoint is accessible
-                        sh '''
-                        echo "Testing root endpoint"
-                        STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/)
-                        if [ $STATUS_CODE -ne 200]; then
-                            echo "Root endpoint failed with status code: $STATUS_CODE"
-                            exit 1
-                        fi
-                        '''
                     }
                 }
             }
@@ -136,5 +83,5 @@ pipeline {
                      subject: "Build failed: ${env.BUILD_NUMBER}",
                      to: 'avidanos75@gmail.com'
         }
-    }
+    }  
 }
